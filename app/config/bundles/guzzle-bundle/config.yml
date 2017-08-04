@@ -1,0 +1,36 @@
+csa_guzzle:
+    profiler:
+        enabled: '%kernel.debug%'
+        # The maximum size of the body which should be stored in the profiler (in bytes)
+        max_body_size: 65536 # Example: 65536
+    logger:
+        enabled: '%kernel.debug%'
+        service: ~
+        format: '{hostname} {req_header_User-Agent} - [{date_common_log}] "{method} {target} HTTP/{version}" {code} {res_header_Content-Length}'
+        level: 'debug'
+    cache:
+        enabled: false
+        adapter: ~
+    clients:
+        gitlab_api:
+            class: 'GuzzleHttp\Client'
+            config:
+                base_uri: 'http://ci.mezzo.private.francemm.com'
+                timeout: 2.0
+                headers:
+                    PRIVATE-TOKEN: 'ZGcWy2oVyfoy8UQQrtyo'
+            middleware: []
+            alias: ~
+        lifx_api:
+            class: 'GuzzleHttp\Client'
+            config:
+                base_uri: 'https://api.lifx.com'
+                timeout: 2.0
+                headers:
+                    Authorization: 'Bearer cc74db768ea77a3193f4dd754b4e4cc850ead03e926de7892b11929c15c7c135'
+            middleware: []
+            alias: ~
+    mock:
+        enabled: false
+        storage_path: ~ # Required
+        mode: 'replay'

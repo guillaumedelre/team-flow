@@ -1,0 +1,5 @@
+services:
+    app.serialization.denormalizer.entity.build:
+        class: 'AppBundle\Serializer\Denormalizer\Gitlab\BuildDenormalizer'
+        tags:
+            - { name: 'serializer.normalizer', priority: 128 }
