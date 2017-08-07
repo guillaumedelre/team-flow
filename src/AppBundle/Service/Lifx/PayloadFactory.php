@@ -2,7 +2,7 @@
 
 namespace AppBundle\Service\Lifx;
 
-use AppBundle\Service\StageManager;
+use AppBundle\Service\HistoryManager;
 
 class PayloadFactory
 {
@@ -17,7 +17,7 @@ class PayloadFactory
     public static function getStateFromBuild($mezzoStatus)
     {
         switch ($mezzoStatus) {
-            case StageManager::BUILD_ERROR:
+            case HistoryManager::BUILD_ERROR:
                 $state = [
                     'power'      => 'on',
                     'brightness' => self::DEFAULT_BRIGHTNESS,
@@ -30,7 +30,7 @@ class PayloadFactory
                     ],
                 ];
                 break;
-            case StageManager::BUILD_SUCCESS:
+            case HistoryManager::BUILD_SUCCESS:
                 $state = [
                     'power'      => 'on',
                     'brightness' => self::DEFAULT_BRIGHTNESS,
@@ -43,7 +43,7 @@ class PayloadFactory
                     ],
                 ];
                 break;
-            case StageManager::BUILD_WARNING:
+            case HistoryManager::BUILD_WARNING:
                 $state = [
                     'power'      => 'on',
                     'brightness' => self::DEFAULT_BRIGHTNESS,

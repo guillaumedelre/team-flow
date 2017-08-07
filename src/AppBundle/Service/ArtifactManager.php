@@ -49,7 +49,7 @@ class ArtifactManager
     /**
      * @var PhpunitCloverParser
      */
-    private $phpunitCoverageParser;
+    private $phpunitCloverParser;
 
     /**
      * ArtifactManager constructor.
@@ -78,7 +78,7 @@ class ArtifactManager
     /**
      * @param Stage $stage
      *
-     * @return ArrayCollection
+     * @return array|Service[]
      */
     public function download(Stage $stage)
     {
@@ -97,20 +97,18 @@ class ArtifactManager
         $process->run();
         $this->filesystem->remove($artifactFilename);
 
-        $services = new ArrayCollection();
+        $services = [];
 
         // catch each service
-        // and parse each phpunit + todo statify result
+        // and parse each phpunit
         // todo behat
         $this->finder->directories()->depth(0)->in($this->artifactPath . '/mezzo/apps/');
         foreach ($this->finder as $directory)
         {
             $serviceName = $directory->getRelativePathname();
-            $services->add(
-                (new Service())
+            $services[] = (new Service())
                     ->setName($serviceName)
-                    ->setPhpunitClover($this->phpunitCloverParser->parse($serviceName))
-            );
+                    ->setPhpunitClover($this->phpunitCloverParser->parse($serviceName));
         }
 
         return $services;

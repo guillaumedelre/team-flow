@@ -45,7 +45,6 @@ class PhpunitCloverParser
         );
 
         return $this->buildPhpunitClover(
-            $service,
             $this->xmlEncoder->decode(
                 reset($clovers)->getContents(),
                 'array'
@@ -54,15 +53,13 @@ class PhpunitCloverParser
     }
 
     /**
-     * @param string $service
      * @param array $data
      *
      * @return PhpunitClover
      */
-    private function buildPhpunitClover(string $service, array $data = []): PhpunitClover
+    private function buildPhpunitClover(array $data = []): PhpunitClover
     {
         return (new PhpunitClover())
-            ->setService($service)
             ->setFiles($data['project']['metrics']['@files'])
             ->setLoc($data['project']['metrics']['@loc'])
             ->setNcloc($data['project']['metrics']['@ncloc'])

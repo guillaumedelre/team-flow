@@ -5,11 +5,6 @@ namespace AppBundle\Entity\Artifact;
 class PhpunitClover
 {
     /**
-     * @var string
-     */
-    private $service = '';
-
-    /**
      * @var int
      */
     private $files = 0;
@@ -68,26 +63,6 @@ class PhpunitClover
      * @var int
      */
     private $coveredelements = 0;
-
-    /**
-     * @return string
-     */
-    public function getService(): string
-    {
-        return $this->service;
-    }
-
-    /**
-     * @param string $service
-     *
-     * @return PhpunitClover
-     */
-    public function setService(string $service)
-    {
-        $this->service = $service;
-
-        return $this;
-    }
 
     /**
      * @return int

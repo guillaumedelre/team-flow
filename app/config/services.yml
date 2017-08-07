@@ -20,7 +20,7 @@ services:
         resource: '../../src/AppBundle/*'
         # you can exclude directories or files
         # but if a service is unused, it's removed anyway
-        exclude: '../../src/AppBundle/{Entity,Service,Repository,Tests}'
+        exclude: '../../src/AppBundle/{Entity,Repository,Service, Twig, Tests}'
 
     # controllers are imported separately to make sure they're public
     # and have a tag that allows actions to type-hint services
@@ -30,37 +30,52 @@ services:
         tags: ['controller.service_arguments']
 
     # add more services, or override services that need manual wiring
-    app.service.lifx.light:
+
+    # API
+    app.api.lifx.light:
         class: 'AppBundle\Service\Lifx\Light'
         arguments:
             - '@csa_guzzle.client.lifx_api'
             - '@serializer.encoder.json'
             - '%lifx_selector%'
 
-    app.service.gitlab.mezzo:
+    app.api.gitlab.mezzo:
         class: 'AppBundle\Service\Gitlab\Mezzo'
         arguments:
             - '@csa_guzzle.client.gitlab_api'
             - '@serializer'
             - '%ci_mezzo%'
 
+    # TWIG
+    app.twig.extension.trend:
+        class: 'AppBundle\Twig\TrendExtension'
+        tags:
+            - { name: 'twig.extension' }
+
+    # SERVICE
+    app.service.history_manager:
+        class: 'AppBundle\Service\HistoryManager'
+        arguments:
+            - '%history_path%'
+            - '@filesystem'
+            - '@serializer'
+
+    app.service.gitlab.ci_manager:
+        class: 'AppBundle\Service\Gitlab\CiManager'
+        arguments:
+            - '@app.api.gitlab.mezzo'
+
     app.service.team_flow:
         class: 'AppBundle\Service\TeamFlow'
         arguments:
             - '%redmine_project_id%'
             - '%gitlab_project_id%'
-            - '@app.service.lifx.light'
-            - '@app.service.manager.stage'
+            - '@app.api.lifx.light'
             - '@app.service.manager.artifact'
-
-    app.service.manager.stage:
-        class: 'AppBundle\Service\StageManager'
-        arguments:
-            - '%history_path%'
-            - '@filesystem'
             - '@serializer'
-            - '@app.service.gitlab.mezzo'
-            - '@app.service.artifact.clover_parser'
+            - '@filesystem'
+            - '@app.service.history_manager'
+            - '@app.service.gitlab.ci_manager'
 
     app.service.manager.artifact:
         class: 'AppBundle\Service\ArtifactManager'
@@ -68,7 +83,7 @@ services:
             - '%artifact_path%'
             - '@filesystem'
             - '@serializer'
-            - '@app.service.gitlab.mezzo'
+            - '@app.api.gitlab.mezzo'
 
     app.service.artifact.clover_parser:
         class: 'AppBundle\Service\Artifact\PhpunitCloverParser'

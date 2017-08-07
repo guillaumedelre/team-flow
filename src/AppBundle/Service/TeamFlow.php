@@ -2,9 +2,14 @@
 
 namespace AppBundle\Service;
 
+use AppBundle\Entity\Artifact\PhpunitClover;
 use AppBundle\Entity\Project;
+use AppBundle\Entity\Service;
+use AppBundle\Service\Gitlab\CiManager;
 use AppBundle\Service\Lifx\Light;
 use AppBundle\Service\Lifx\PayloadFactory;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class TeamFlow
 {
@@ -24,9 +29,9 @@ class TeamFlow
     private $gitlabProjectId;
 
     /**
-     * @var StageManager
+     * @var CiManager
      */
-    private $stageManager;
+    private $ciManager;
 
     /**
      * @var ArtifactManager
@@ -34,26 +39,55 @@ class TeamFlow
     private $artifactManager;
 
     /**
+     * @var Filesystem
+     */
+    private $filesystem;
+
+    /**
+     * @var SerializerInterface
+     */
+    private $serializer;
+
+    /**
+     * @var HistoryManager
+     */
+    private $history;
+
+    /**
+     * @var CiManager
+     */
+    private $ci;
+
+    /**
      * TeamFlow constructor.
      *
      * @param string $redmineProjectId
      * @param int $gitlabProjectId
      * @param Light $lifxLight
-     * @param StageManager $stageManager
      * @param ArtifactManager $artifactManager
+     * @param SerializerInterface $serializer
+     * @param Filesystem $filesystem
+     * @param HistoryManager $history
+     * @param CiManager $ciManager
      */
     public function __construct(
         string $redmineProjectId,
         int $gitlabProjectId,
         Light $lifxLight,
-        StageManager $stageManager,
-        ArtifactManager $artifactManager
+        ArtifactManager $artifactManager,
+        SerializerInterface $serializer,
+        Filesystem $filesystem,
+        HistoryManager $history,
+        CiManager $ciManager
     ) {
         $this->lifxLight = $lifxLight;
         $this->redmineProjectId = $redmineProjectId;
         $this->gitlabProjectId = $gitlabProjectId;
-        $this->stageManager = $stageManager;
         $this->artifactManager = $artifactManager;
+        $this->serializer = $serializer;
+        $this->filesystem = $filesystem;
+        $this->history = $history;
+        $this->ci = $ciManager;
     }
 
     /**
@@ -61,19 +95,28 @@ class TeamFlow
      */
     public function getProject(): Project
     {
-        $project = (new Project())->setName(ucfirst($this->redmineProjectId));
+        $project = (new Project())
+            ->setGitlabId($this->gitlabProjectId)
+            ->setRedmineId($this->redmineProjectId);
 
-        $this->stageManager->loadStages();
+        if ($this->history->hasLocalProject()) {
+            $_project = $this->history->getLocalProject();
+            $project->setBackupServices($_project->getServices()->toArray());
+        }
 
-        $project->setLocalStage($this->stageManager->getLocalStage());
-        $project->setRemoteStage($this->stageManager->getRemoteStage());
+        // Remote Stage
+        $project->setRemoteStage($this->ci->buildRemoteStage());
 
-        $services = $this->artifactManager->download($this->stageManager->getRemoteStage());
+        // download artifact & compute metrics
+        $services = $this->artifactManager->download($project->getRemoteStage());
         $project->setServices($services);
+
+        // statify history
+        $this->history->statify($project);
 
         $this->lifxLight->state(
             [
-                'json' => PayloadFactory::getStateFromBuild($this->stageManager->getRemoteStage()->getStatus()),
+                'json' => PayloadFactory::getStateFromBuild($project->getRemoteStage()->getStatus()),
             ]
         );
 

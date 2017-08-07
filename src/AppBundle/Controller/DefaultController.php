@@ -31,7 +31,6 @@ class DefaultController extends Controller
     public function indexAction(Request $request)
     {
         $project = $this->teamFlow->getProject();
-        dump($project);
 
         // replace this example code with whatever you need
         return $this->render('default/index.html.twig', [
