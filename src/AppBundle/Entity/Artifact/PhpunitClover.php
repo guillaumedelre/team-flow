@@ -5,6 +5,11 @@ namespace AppBundle\Entity\Artifact;
 class PhpunitClover
 {
     /**
+     * @var string
+     */
+    private $service = '';
+
+    /**
      * @var int
      */
     private $files = 0;
@@ -17,7 +22,7 @@ class PhpunitClover
     /**
      * @var int
      */
-    private $nloc = 0;
+    private $ncloc = 0;
 
     /**
      * @var int
@@ -58,6 +63,31 @@ class PhpunitClover
      * @var int
      */
     private $elements = 0;
+
+    /**
+     * @var int
+     */
+    private $coveredelements = 0;
+
+    /**
+     * @return string
+     */
+    public function getService(): string
+    {
+        return $this->service;
+    }
+
+    /**
+     * @param string $service
+     *
+     * @return PhpunitClover
+     */
+    public function setService(string $service)
+    {
+        $this->service = $service;
+
+        return $this;
+    }
 
     /**
      * @return int
@@ -102,19 +132,19 @@ class PhpunitClover
     /**
      * @return int
      */
-    public function getNloc(): int
+    public function getNcloc(): int
     {
-        return $this->nloc;
+        return $this->ncloc;
     }
 
     /**
-     * @param int $nloc
+     * @param int $ncloc
      *
      * @return PhpunitClover
      */
-    public function setNloc(int $nloc)
+    public function setNcloc(int $ncloc)
     {
-        $this->nloc = $nloc;
+        $this->ncloc = $ncloc;
 
         return $this;
     }
@@ -275,6 +305,26 @@ class PhpunitClover
     public function setElements(int $elements)
     {
         $this->elements = $elements;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCoveredelements(): int
+    {
+        return $this->coveredelements;
+    }
+
+    /**
+     * @param int $coveredelements
+     *
+     * @return PhpunitClover
+     */
+    public function setCoveredelements(int $coveredelements)
+    {
+        $this->coveredelements = $coveredelements;
 
         return $this;
     }

@@ -28,6 +28,19 @@ class Project
     private $remoteStage;
 
     /**
+     * @var Service[]|ArrayCollection|Collection
+     */
+    private $services;
+
+    /**
+     * Project constructor.
+     */
+    public function __construct()
+    {
+        $this->services = new ArrayCollection();
+    }
+
+    /**
      * @return int
      */
     public function getId(): int
@@ -97,5 +110,25 @@ class Project
     public function setRemoteStage(Stage $remoteStage)
     {
         $this->remoteStage = $remoteStage;
+    }
+
+    /**
+     * @return Service[]|ArrayCollection|Collection
+     */
+    public function getServices()
+    {
+        return $this->services;
+    }
+
+    /**
+     * @param Service[]|ArrayCollection|Collection $services
+     *
+     * @return Project
+     */
+    public function setServices($services)
+    {
+        $this->services = $services;
+
+        return $this;
     }
 }

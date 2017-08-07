@@ -8,8 +8,10 @@
 
 namespace AppBundle\Service;
 
+use AppBundle\Entity\Artifact;
 use AppBundle\Entity\Gitlab\Build;
 use AppBundle\Entity\Stage;
+use AppBundle\Service\Artifact\PhpunitCloverParser;
 use AppBundle\Service\Gitlab\Mezzo;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -66,24 +68,32 @@ class StageManager
     private $gitlabMezzo;
 
     /**
+     * @var PhpunitCloverParser
+     */
+    private $phpunitCloverParser;
+
+    /**
      * History constructor.
      *
      * @param string $historyPath
      * @param Filesystem $filesystem
      * @param SerializerInterface $serializer
      * @param Mezzo $gitlabMezzo
+     * @param PhpunitCloverParser $phpunitCloverParser
      */
     public function __construct(
         string $historyPath,
         Filesystem $filesystem,
         SerializerInterface $serializer,
-        Mezzo $gitlabMezzo
+        Mezzo $gitlabMezzo,
+        PhpunitCloverParser $phpunitCloverParser
     ) {
         $this->historyPath = $historyPath;
         $this->filesystem = $filesystem;
         $this->finder = new Finder();
         $this->serializer = $serializer;
         $this->gitlabMezzo = $gitlabMezzo;
+        $this->phpunitCloverParser = $phpunitCloverParser;
     }
 
     /**

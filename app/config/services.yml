@@ -60,6 +60,7 @@ services:
             - '@filesystem'
             - '@serializer'
             - '@app.service.gitlab.mezzo'
+            - '@app.service.artifact.clover_parser'
 
     app.service.manager.artifact:
         class: 'AppBundle\Service\ArtifactManager'
@@ -70,8 +71,7 @@ services:
             - '@app.service.gitlab.mezzo'
 
     app.service.artifact.clover_parser:
-        class: 'AppBundle\Service\Artifact\CloverParser'
+        class: 'AppBundle\Service\Artifact\PhpunitCloverParser'
         arguments:
-            - '@finder'
             - '%artifact_path%'
 

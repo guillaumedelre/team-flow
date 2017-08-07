@@ -68,7 +68,8 @@ class TeamFlow
         $project->setLocalStage($this->stageManager->getLocalStage());
         $project->setRemoteStage($this->stageManager->getRemoteStage());
 
-        $this->artifactManager->download($this->stageManager->getRemoteStage());
+        $services = $this->artifactManager->download($this->stageManager->getRemoteStage());
+        $project->setServices($services);
 
         $this->lifxLight->state(
             [

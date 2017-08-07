@@ -9,8 +9,11 @@
 namespace AppBundle\Service;
 
 
+use AppBundle\Entity\Service;
 use AppBundle\Entity\Stage;
+use AppBundle\Service\Artifact\PhpunitCloverParser;
 use AppBundle\Service\Gitlab\Mezzo;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
@@ -44,30 +47,38 @@ class ArtifactManager
     private $gitlabMezzo;
 
     /**
+     * @var PhpunitCloverParser
+     */
+    private $phpunitCoverageParser;
+
+    /**
      * ArtifactManager constructor.
      *
      * @param string $artifactPath
      * @param Filesystem $filesystem
      * @param SerializerInterface $serializer
      * @param Mezzo $gitlabMezzo
+     * @param PhpunitCloverParser $phpunitCloverParser
      */
     public function __construct(
         string $artifactPath,
         Filesystem $filesystem,
         SerializerInterface $serializer,
-        Mezzo $gitlabMezzo
+        Mezzo $gitlabMezzo,
+        PhpunitCloverParser $phpunitCloverParser
     ) {
         $this->artifactPath = $artifactPath;
         $this->filesystem = $filesystem;
         $this->finder = new Finder();
         $this->serializer = $serializer;
         $this->gitlabMezzo = $gitlabMezzo;
+        $this->phpunitCloverParser = $phpunitCloverParser;
     }
 
     /**
      * @param Stage $stage
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ArrayCollection
      */
     public function download(Stage $stage)
     {
@@ -86,7 +97,23 @@ class ArtifactManager
         $process->run();
         $this->filesystem->remove($artifactFilename);
 
-        return $this->gitlabMezzo->downloadArtifact($stage->getBuildJob()->getId());
+        $services = new ArrayCollection();
+
+        // catch each service
+        // and parse each phpunit + todo statify result
+        // todo behat
+        $this->finder->directories()->depth(0)->in($this->artifactPath . '/mezzo/apps/');
+        foreach ($this->finder as $directory)
+        {
+            $serviceName = $directory->getRelativePathname();
+            $services->add(
+                (new Service())
+                    ->setName($serviceName)
+                    ->setPhpunitClover($this->phpunitCloverParser->parse($serviceName))
+            );
+        }
+
+        return $services;
     }
 
 }

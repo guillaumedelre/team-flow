@@ -27,11 +27,6 @@ class Stage
     private $status;
 
     /**
-     * @var Artifact
-     */
-    private $artifact;
-
-    /**
      * @return Build
      */
     public function getBuildJob(): Build
@@ -107,26 +102,6 @@ class Stage
     public function setStatus(int $status)
     {
         $this->status = $status;
-
-        return $this;
-    }
-
-    /**
-     * @return Artifact
-     */
-    public function getArtifact(): Artifact
-    {
-        return $this->artifact;
-    }
-
-    /**
-     * @param Artifact $artifact
-     *
-     * @return Stage
-     */
-    public function setArtifact(Artifact $artifact)
-    {
-        $this->artifact = $artifact;
 
         return $this;
     }
