@@ -4,6 +4,7 @@ namespace AppBundle\Service\Gitlab;
 
 use AppBundle\Entity\Gitlab\Build;
 use GuzzleHttp\Client;
+use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -84,7 +85,14 @@ class Mezzo
      */
     public function build(string $id): Build
     {
-        $response = $this->client->get(self::API_PATH . 'projects/' . $this->projectId . '/builds/' . $id);
+        $response = $this->client->get(
+            self::API_PATH . 'projects/' . $this->projectId . '/builds/' . $id,
+            [
+                RequestOptions::QUERY => [
+                    'private_token' => 'ZGcWy2oVyfoy8UQQrtyo'
+                ]
+            ]
+        );
 
         return $this->serializer->deserialize(
             $response->getBody()->getContents(),

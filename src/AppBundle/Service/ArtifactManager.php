@@ -84,8 +84,8 @@ class ArtifactManager
     {
         $artifactFilename = $this->artifactPath . '/artifacts.zip';
 
-        if ($this->filesystem->exists($this->artifactPath)) {
-            $this->filesystem->remove($this->artifactPath);
+        if ($this->filesystem->exists($this->artifactPath . '/mezzo/')) {
+            $this->filesystem->remove($this->artifactPath . '/mezzo/');
         }
 
         $this->filesystem->dumpFile(

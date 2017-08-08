@@ -30,11 +30,6 @@ class Project
     /**
      * @var Service[]|ArrayCollection|Collection
      */
-    private $backupServices;
-
-    /**
-     * @var Service[]|ArrayCollection|Collection
-     */
     private $services;
 
     /**
@@ -43,7 +38,6 @@ class Project
     public function __construct()
     {
         $this->services = new ArrayCollection();
-        $this->backupServices = new ArrayCollection();
     }
 
     /**
@@ -121,29 +115,6 @@ class Project
     public function setRemoteStage($remoteStage)
     {
         $this->remoteStage = $remoteStage;
-
-        return $this;
-    }
-
-    /**
-     * @return Service[]|ArrayCollection|Collection
-     */
-    public function getBackupServices()
-    {
-        return $this->backupServices;
-    }
-
-    /**
-     * @param Service[]
-     *
-     * @return Project
-     */
-    public function setBackupServices(array $backupServices)
-    {
-        $this->backupServices = new ArrayCollection();
-        foreach ($backupServices as $service) {
-            $this->backupServices->add($service);
-        }
 
         return $this;
     }
