@@ -4,6 +4,7 @@ namespace AppBundle\Service\Gitlab;
 
 use AppBundle\Entity\Gitlab\Build;
 use GuzzleHttp\Client;
+use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -100,6 +101,12 @@ class Mezzo
      */
     public function downloadArtifact(string $id)
     {
-        return $this->client->get(self::API_PATH . 'projects/' . $this->projectId . '/builds/' . $id . '/artifacts');
+        return $this->client->get(self::API_PATH . 'projects/' . $this->projectId . '/builds/' . $id . '/artifacts',
+            [
+                RequestOptions::QUERY => [
+                    'private_token' => 'ZGcWy2oVyfoy8UQQrtyo'
+                ]
+            ]
+        );
     }
 }

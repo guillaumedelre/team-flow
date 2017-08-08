@@ -2,9 +2,7 @@
 
 namespace AppBundle\Service;
 
-use AppBundle\Entity\Artifact\PhpunitClover;
 use AppBundle\Entity\Project;
-use AppBundle\Entity\Service;
 use AppBundle\Service\Gitlab\CiManager;
 use AppBundle\Service\Lifx\Light;
 use AppBundle\Service\Lifx\PayloadFactory;
@@ -27,11 +25,6 @@ class TeamFlow
      * @var int
      */
     private $gitlabProjectId;
-
-    /**
-     * @var CiManager
-     */
-    private $ciManager;
 
     /**
      * @var ArtifactManager
@@ -98,11 +91,6 @@ class TeamFlow
         $project = (new Project())
             ->setGitlabId($this->gitlabProjectId)
             ->setRedmineId($this->redmineProjectId);
-
-        if ($this->history->hasLocalProject()) {
-            $_project = $this->history->getLocalProject();
-            $project->setBackupServices($_project->getServices()->toArray());
-        }
 
         // Remote Stage
         $project->setRemoteStage($this->ci->buildRemoteStage());

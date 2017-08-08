@@ -104,13 +104,8 @@ class HistoryManager
                 JsonEncoder::FORMAT
             );
             $dt = date_create_from_format('Ymd', $day);
-            $project
-                ->setServices(
-                    $this->buildServiceFromArray($dt, $project->getServices()->toArray())
-                )
-                ->setBackupServices(
-                    $this->buildServiceFromArray($dt, $project->getBackupServices()->toArray())
-                );
+            $services = $this->buildServiceFromArray($dt, $project->getServices()->toArray());
+            $project->setServices($services);
             $return[] = $project->getServices();
         }
 
