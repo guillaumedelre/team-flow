@@ -108,6 +108,7 @@ class ArtifactManager
             $serviceName = $directory->getRelativePathname();
             $services[] = (new Service())
                     ->setName($serviceName)
+                    ->setCreatedAt(new \DateTime())
                     ->setPhpunitClover($this->phpunitCloverParser->parse($serviceName));
         }
 

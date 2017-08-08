@@ -1,47 +1,38 @@
 {% extends 'base.html.twig' %}
 
+{% block page_title %}Mezzo QA{% endblock %}
+
+{% block page_subtitle %}Overview{% endblock %}
+
 {% block page_content %}
     <div class="row">
         {% for service in project.services %}
-        <div class="col-md-3 col-sm-6 col-xs-12">
-            <div class="box box-default">
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="box box-default">
 
-                <div class="box-header with-border">
-                    <h3 class="box-title">{{ service.name|upper }}</h3>
-                </div>
-
-                <div class="box-body">
-                    <div class="info-box {{ trendBackground(service, project) }}">
-                        <span class="info-box-icon"><i class="fa {{ trendArrow(service, project) }}"></i></span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">PHPUNIT</span>
-                            <span class="info-box-number">{{ phpunitPercent(service, project.services)|round(2) }}%</span>
-                            <div class="progress">
-                                <div class="progress-bar" style="width: {{ phpunitPercent(service, project.services)|round }}%"></div>
-                            </div>
-                            <span class="progress-description">
-                            70% Increase in 30 Days
-                        </span>
-                        </div>
+                    <div class="box-header with-border">
+                        <h3 class="box-title">{{ service.name|upper }}</h3>
                     </div>
 
-                    <div class="info-box {{ trendBackground(service, project) }}">
-                        <span class="info-box-icon"><i class="fa {{ trendArrow(service, project) }}"></i></span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">PHPUNIT</span>
-                            <span class="info-box-number">{{ phpunitPercent(service, project.services)|round(2) }}%</span>
-                            <div class="progress">
-                                <div class="progress-bar" style="width: {{ phpunitPercent(service, project.services)|round }}%"></div>
+                    <div class="box-body">
+                        <a href="{{ url('metrics', {"metricName": 'phpunit'}) }}">
+                            <div class="info-box {{ trendBackground(service, project) }}">
+                                <span class="info-box-icon"><i class="fa {{ trendArrow(service, project) }}"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">PHPUNIT</span>
+                                    <span class="info-box-number">
+                                        {{ phpunitPercent(service, project.services)|round(2) }}%
+                                    </span>
+                                    <div class="progress">
+                                        <div class="progress-bar"
+                                             style="width: {{ phpunitPercent(service, project.services)|round }}%"></div>
+                                    </div>
+                                </div>
                             </div>
-                            <span class="progress-description">
-                            70% Increase in 30 Days
-                        </span>
-                        </div>
+                        </a>
                     </div>
                 </div>
             </div>
-        </div>
         {% endfor %}
     </div>
 {% endblock %}
-

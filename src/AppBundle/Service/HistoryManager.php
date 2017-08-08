@@ -9,14 +9,11 @@
 namespace AppBundle\Service;
 
 use AppBundle\Entity\Artifact\PhpunitClover;
-use AppBundle\Entity\Gitlab\Build;
 use AppBundle\Entity\Project;
 use AppBundle\Entity\Service;
-use AppBundle\Entity\Stage;
-use AppBundle\Service\Artifact\PhpunitCloverParser;
-use AppBundle\Service\Gitlab\Mezzo;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -69,7 +66,7 @@ class HistoryManager
      * @return bool
      * @throws \Exception
      */
-    public function hasLocalProject(): bool
+    public function hasHistory(): bool
     {
         if (!$this->filesystem->exists($this->historyPath)) {
             $message = sprintf('Path not found `%s`.', $this->historyPath);
@@ -82,39 +79,69 @@ class HistoryManager
         if (0 === $finder->count()) {
             return false;
         }
-        
+
         return true;
     }
 
     /**
-     * @return Project
+     * @return array
      * @throws \Exception
      */
-    public function getLocalProject(): Project
+    public function getHistory(): array
     {
         $finder = new Finder();
-
         $finder->files()->in($this->historyPath)->name('*.json')->sortByModifiedTime();
-
         $files = \iterator_to_array($finder);
 
-        /** @var Project $project */
-        $project = $this->serializer->deserialize(
-            reset($files)->getContents(),
-            Project::class,
-            JsonEncoder::FORMAT
-        );
+        $lastMonthFiles = $this->filterOnLastMonth($files);
 
-
-        $project
-            ->setServices(
-                $this->buildServiceFromArray($project->getServices()->toArray())
-            )
-            ->setBackupServices(
-                $this->buildServiceFromArray($project->getBackupServices()->toArray())
+        $return = [];
+        foreach ($lastMonthFiles as $day => $file) {
+            /** @var Project $project */
+            $project = $this->serializer->deserialize(
+                $file->getContents(),
+                Project::class,
+                JsonEncoder::FORMAT
             );
+            $dt = date_create_from_format('Ymd', $day);
+            $project
+                ->setServices(
+                    $this->buildServiceFromArray($dt, $project->getServices()->toArray())
+                )
+                ->setBackupServices(
+                    $this->buildServiceFromArray($dt, $project->getBackupServices()->toArray())
+                );
+            $return[] = $project->getServices();
+        }
 
-        return $project;
+        return $return;
+    }
+
+    /**
+     * @param array $files
+     *
+     * @return array
+     */
+    public function filterOnLastMonth(array $files = [])
+    {
+        $month = [];
+
+        $lastMonth = (new \DateTime())->modify('-1 month');
+
+        /** @var SplFileInfo $file */
+        foreach ($files as $file) {
+
+            list($timestamp, $extension) = explode('.', $file->getRelativePathname());
+
+            $date = (new \DateTime())->setTimestamp($timestamp);
+            if ($lastMonth->getTimestamp() < $date->getTimestamp()) {
+
+                $month[$date->format('Ymd')] = $file;
+
+            }
+        }
+
+        return $month;
     }
 
     /**
@@ -122,11 +149,12 @@ class HistoryManager
      *
      * @return array
      */
-    private function buildServiceFromArray(array $services): array
+    private function buildServiceFromArray(\DateTime $createdAt, array $services): array
     {
         $return = [];
         foreach ($services as $service) {
             $return[] = (new Service())
+                ->setCreatedAt($createdAt)
                 ->setName($service['name'])
                 ->setPhpunitClover(
                     (new PhpunitClover())

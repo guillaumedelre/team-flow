@@ -6,17 +6,35 @@ use AppBundle\Entity\Artifact\PhpunitClover;
 use AppBundle\Entity\Project;
 use AppBundle\Entity\Service;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 
 class TrendExtension extends \Twig_Extension
 {
     public function getFunctions()
     {
-        return array(
-            new \Twig_SimpleFunction('trendArrow', array($this, 'trendArrow')),
-            new \Twig_SimpleFunction('trendBackground', array($this, 'trendBackground')),
-            new \Twig_SimpleFunction('phpunitPercent', array($this, 'phpunitPercent')),
-        );
+        return [
+            new \Twig_SimpleFunction('trendArrow', [$this, 'trendArrow']),
+            new \Twig_SimpleFunction('trendBackground', [$this, 'trendBackground']),
+            new \Twig_SimpleFunction('phpunitPercent', [$this, 'phpunitPercent']),
+        ];
+    }
+
+    /**
+     * @param Service $service
+     * @param Project $project
+     *
+     * @return string
+     */
+    public function trendArrow(Service $service, Project $project): string
+    {
+        $avg = $this->phpunitPercent($service, $project->getServices());
+
+        $return = 'fa-thumbs-down';
+
+        if ($avg >= 90) {
+            $return = 'fa-thumbs-up';
+        }
+
+        return $return;
     }
 
     /**
@@ -37,35 +55,26 @@ class TrendExtension extends \Twig_Extension
             }
         }
 
-        return $phpunit->getCoveredmethods() * 100 / $phpunit->getMethods();
-    }
-
-    /**
-     * @param Service $service
-     * @param Project $project
-     *
-     * @return string
-     */
-    public function trendArrow(Service $service, Project $project): string
-    {
-        /** @var Service $old */
-        $old = $this->phpunitPercent($service, $project->getBackupServices());
-
-        /** @var Service $new */
-        $new = $this->phpunitPercent($service, $project->getServices());
-
-        $return = 'fa-arrow-down';
-        if ($new > $old) {
-            $return = 'fa-arrow-up';
+        $avg = 0;
+        $divider = 0;
+        if ($phpunit->getMethods() > 0) {
+            $avg += $phpunit->getCoveredmethods() * 100 / $phpunit->getMethods();
+            $divider++;
         }
-        if ($new < $old) {
-            $return = 'fa-arrow-down';
+        if ($phpunit->getConditionals() > 0) {
+            $avg += $phpunit->getCoveredconditionals() * 100 / $phpunit->getConditionals();
+            $divider++;
         }
-        if ($new == $old) {
-            $return = 'fa-arrow-right';
+        if ($phpunit->getStatements() > 0) {
+            $avg += $phpunit->getCoveredstatements() * 100 / $phpunit->getStatements();
+            $divider++;
+        }
+        if ($phpunit->getElements() > 0) {
+            $avg += $phpunit->getCoveredelements() * 100 / $phpunit->getElements();
+            $divider++;
         }
 
-        return $return;
+        return $avg / $divider;
     }
 
     /**
@@ -76,17 +85,19 @@ class TrendExtension extends \Twig_Extension
      */
     public function trendBackground(Service $service, Project $project)
     {
-        /** @var Service $new */
-        $new = $this->phpunitPercent($service, $project->getServices());
+        $avg = $this->phpunitPercent($service, $project->getServices());
 
         $return = 'bg-aqua';
-        if ($new > 90) {
+
+        if ($avg >= 90) {
             $return = 'bg-green';
         }
-        if ($new > 50 && $new <90) {
+
+        if ($avg >= 50 && $avg < 90) {
             $return = 'bg-yellow';
         }
-        if ($new < 50) {
+
+        if ($avg < 50) {
             $return = 'bg-red';
         }
 

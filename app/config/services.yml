@@ -44,7 +44,7 @@ services:
         arguments:
             - '@csa_guzzle.client.gitlab_api'
             - '@serializer'
-            - '%ci_mezzo%'
+            - '%gitlab_project_id%'
 
     # TWIG
     app.twig.extension.trend:
@@ -52,9 +52,18 @@ services:
         tags:
             - { name: 'twig.extension' }
 
+    # ADMIN LTE
+    app.admin_lte.menu_listener:
+        class: 'AppBundle\Event\Listener\AdminLte\MenuItemListListener'
+        tags:
+            - name: 'kernel.event_listener'
+              event: 'theme.sidebar_setup_menu'
+              method: 'onSetupMenu'
+
     # SERVICE
     app.service.history_manager:
         class: 'AppBundle\Service\HistoryManager'
+        public: true
         arguments:
             - '%history_path%'
             - '@filesystem'

@@ -21,7 +21,6 @@ parameters:
     admin_skin: 'skin-blue-light'
 
     lifx_selector: 'd073d5229a05'
-    ci_mezzo: 11
 
     redmine_project_id: 'mezzo'
     gitlab_project_id: 11

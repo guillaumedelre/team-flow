@@ -99,11 +99,11 @@ class TeamFlow
             ->setGitlabId($this->gitlabProjectId)
             ->setRedmineId($this->redmineProjectId);
 
-        if ($this->history->hasLocalProject()) {
-            $_project = $this->history->getLocalProject();
-            $project->setBackupServices($_project->getServices()->toArray());
-        }
-
+//        if ($this->history->hasLocalProject()) {
+//            $_project = $this->history->getLocalProject();
+//            $project->setBackupServices($_project->getServices()->toArray());
+//        }
+//
         // Remote Stage
         $project->setRemoteStage($this->ci->buildRemoteStage());
 
