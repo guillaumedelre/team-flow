@@ -104,8 +104,8 @@ class Mezzo
         return $this->client->get(self::API_PATH . 'projects/' . $this->projectId . '/builds/' . $id . '/artifacts',
             [
                 RequestOptions::QUERY => [
-                    'private_token' => 'ZGcWy2oVyfoy8UQQrtyo'
-                ]
+                    'private_token' => 'ZGcWy2oVyfoy8UQQrtyo',
+                ],
             ]
         );
     }
