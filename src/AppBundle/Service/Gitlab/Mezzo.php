@@ -85,7 +85,14 @@ class Mezzo
      */
     public function build(string $id): Build
     {
-        $response = $this->client->get(self::API_PATH . 'projects/' . $this->projectId . '/builds/' . $id);
+        $response = $this->client->get(
+            self::API_PATH . 'projects/' . $this->projectId . '/builds/' . $id,
+            [
+                RequestOptions::QUERY => [
+                    'private_token' => 'ZGcWy2oVyfoy8UQQrtyo'
+                ]
+            ]
+        );
 
         return $this->serializer->deserialize(
             $response->getBody()->getContents(),
