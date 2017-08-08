@@ -101,12 +101,6 @@ class Mezzo
      */
     public function downloadArtifact(string $id)
     {
-        return $this->client->get(self::API_PATH . 'projects/' . $this->projectId . '/builds/' . $id . '/artifacts',
-            [
-                RequestOptions::QUERY => [
-                    'private_token' => 'ZGcWy2oVyfoy8UQQrtyo',
-                ],
-            ]
-        );
+        return $this->client->get(self::API_PATH . 'projects/' . $this->projectId . '/builds/' . $id . '/artifacts');
     }
 }
