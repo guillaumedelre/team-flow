@@ -2,47 +2,55 @@
 
 namespace AppBundle\Service\Lifx;
 
-use AppBundle\Service\Orchestrator;
+use AppBundle\Service\HistoryManager;
 
 class PayloadFactory
 {
+    const HUE_SUCCESS = 120;
+    const HUE_ERROR = 0;
+    const HUE_WARNING = 60;
+
+    const DEFAULT_BRIGHTNESS = .8;
+    const DEFAULT_DURATION = .5;
+    const DEFAULT_SATURATION = 1;
+
     public static function getStateFromBuild($mezzoStatus)
     {
         switch ($mezzoStatus) {
-            case Orchestrator::BUILD_ERROR:
+            case HistoryManager::BUILD_ERROR:
                 $state = [
                     'power'      => 'on',
-                    'brightness' => Orchestrator::DEFAULT_BRIGHTNESS,
-                    'duration'   => .5,
+                    'brightness' => self::DEFAULT_BRIGHTNESS,
+                    'duration'   => self::DEFAULT_DURATION,
                     'color'      => [
-                        'hue'        => Orchestrator::HUE_ERROR,
-                        'saturation' => 1,
+                        'hue'        => self::HUE_ERROR,
+                        'saturation' => self::DEFAULT_SATURATION,
                         'brightness' => null,
                         'kelvin'     => null,
                     ],
                 ];
                 break;
-            case Orchestrator::BUILD_SUCCESS:
+            case HistoryManager::BUILD_SUCCESS:
                 $state = [
                     'power'      => 'on',
-                    'brightness' => Orchestrator::DEFAULT_BRIGHTNESS,
-                    'duration'   => .5,
+                    'brightness' => self::DEFAULT_BRIGHTNESS,
+                    'duration'   => self::DEFAULT_DURATION,
                     'color'      => [
-                        'hue'        => Orchestrator::HUE_SUCCESS,
-                        'saturation' => 1,
+                        'hue'        => self::HUE_SUCCESS,
+                        'saturation' => self::DEFAULT_SATURATION,
                         'brightness' => null,
                         'kelvin'     => null,
                     ],
                 ];
                 break;
-            case Orchestrator::BUILD_WARNING:
+            case HistoryManager::BUILD_WARNING:
                 $state = [
                     'power'      => 'on',
-                    'brightness' => Orchestrator::DEFAULT_BRIGHTNESS,
-                    'duration'   => .5,
+                    'brightness' => self::DEFAULT_BRIGHTNESS,
+                    'duration'   => self::DEFAULT_DURATION,
                     'color'      => [
-                        'hue'        => Orchestrator::HUE_WARNING,
-                        'saturation' => 1,
+                        'hue'        => self::HUE_WARNING,
+                        'saturation' => self::DEFAULT_SATURATION,
                         'brightness' => null,
                         'kelvin'     => null,
                     ],

@@ -38,6 +38,9 @@ framework:
 twig:
     debug: '%kernel.debug%'
     strict_variables: '%kernel.debug%'
+    globals:
+        admin_skin: "%admin_skin%"
+        avanzu_adminlte_close_alert: true
 
 # Doctrine Configuration
 doctrine:

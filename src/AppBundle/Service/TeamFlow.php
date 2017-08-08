@@ -2,42 +2,17 @@
 
 namespace AppBundle\Service;
 
-use AppBundle\Entity\Gitlab\Build;
+use AppBundle\Entity\Artifact\PhpunitClover;
 use AppBundle\Entity\Project;
-use AppBundle\Entity\Stage;
-use AppBundle\Service\Gitlab\Mezzo;
+use AppBundle\Entity\Service;
+use AppBundle\Service\Gitlab\CiManager;
 use AppBundle\Service\Lifx\Light;
 use AppBundle\Service\Lifx\PayloadFactory;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Process\Process;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class TeamFlow
 {
-    const BUILD_STATUS_SUCCESS = 'success';
-    const BUILD_STATUS_FAILED = 'failed';
-
-    const BUILD_STAGE_BUILD = 'buid';
-    const BUILD_STAGE_PACKAGE = 'package';
-    const BUILD_STAGE_DEPLOY = 'deploy';
-
-    const BUILD_SUCCESS = 0b001;
-    const BUILD_WARNING = 0b010;
-    const BUILD_ERROR = 0b000;
-
-    /**
-     * @var Project
-     */
-    private $project;
-
-    /**
-     * @var Filesystem
-     */
-    private $filesystem;
-
-    /**
-     * @var Mezzo
-     */
-    private $gitlabMezzo;
     /**
      * @var Light
      */
@@ -54,117 +29,97 @@ class TeamFlow
     private $gitlabProjectId;
 
     /**
-     * @var string
+     * @var CiManager
      */
-    private $artifactPath;
+    private $ciManager;
+
+    /**
+     * @var ArtifactManager
+     */
+    private $artifactManager;
+
+    /**
+     * @var Filesystem
+     */
+    private $filesystem;
+
+    /**
+     * @var SerializerInterface
+     */
+    private $serializer;
+
+    /**
+     * @var HistoryManager
+     */
+    private $history;
+
+    /**
+     * @var CiManager
+     */
+    private $ci;
 
     /**
      * TeamFlow constructor.
      *
      * @param string $redmineProjectId
      * @param int $gitlabProjectId
-     * @param Mezzo $gitlabMezzo
      * @param Light $lifxLight
+     * @param ArtifactManager $artifactManager
+     * @param SerializerInterface $serializer
      * @param Filesystem $filesystem
-     * @param string $artifactPath
+     * @param HistoryManager $history
+     * @param CiManager $ciManager
      */
     public function __construct(
         string $redmineProjectId,
         int $gitlabProjectId,
-        Mezzo $gitlabMezzo,
         Light $lifxLight,
+        ArtifactManager $artifactManager,
+        SerializerInterface $serializer,
         Filesystem $filesystem,
-        string $artifactPath
-    )
-    {
+        HistoryManager $history,
+        CiManager $ciManager
+    ) {
+        $this->lifxLight = $lifxLight;
         $this->redmineProjectId = $redmineProjectId;
         $this->gitlabProjectId = $gitlabProjectId;
-
-        $this->gitlabMezzo = $gitlabMezzo;
-        $this->lifxLight = $lifxLight;
-
+        $this->artifactManager = $artifactManager;
+        $this->serializer = $serializer;
         $this->filesystem = $filesystem;
-        $this->artifactPath = $artifactPath;
-    }
-
-    /**
-     * @param Stage $stage
-     *
-     * @return \Psr\Http\Message\ResponseInterface
-     */
-    private function downloadArtifacts(Stage $stage)
-    {
-        $artifactFilename = $this->artifactPath . '/artifacts.zip';
-
-        if ($this->filesystem->exists($this->artifactPath)) {
-            $this->filesystem->remove($this->artifactPath);
-        }
-
-        $this->filesystem->dumpFile(
-            $artifactFilename,
-            $this->gitlabMezzo->downloadArtifact($stage->getBuildJob()->getId())->getBody()->getContents()
-        );
-
-        $process = new Process("unzip $artifactFilename -d " . $this->artifactPath);
-        $process->run();
-        $this->filesystem->remove($artifactFilename);
-
-        return $this->gitlabMezzo->downloadArtifact($stage->getBuildJob()->getId());
+        $this->history = $history;
+        $this->ci = $ciManager;
     }
 
     /**
      * @return Project
      */
-    public function run(): Project
+    public function getProject(): Project
     {
-        $stage = $this->buildStage();
+        $project = (new Project())
+            ->setGitlabId($this->gitlabProjectId)
+            ->setRedmineId($this->redmineProjectId);
 
-        $this->downloadArtifacts($stage);
-
-        return (new Project())
-            ->setName(ucfirst($this->redmineProjectId))
-            ->setStage($stage)
-        ;
-    }
-
-    /**
-     * @return Stage
-     */
-    private function buildStage(): Stage
-    {
-        $return = [];
-        $builds = $this->gitlabMezzo->builds();
-        foreach ($builds as $i => $build) {
-            if (self::BUILD_STAGE_DEPLOY === $build->getStage()) {
-                $return[] = $builds[$i];
-                $return[] = $builds[$i + 1];
-                $return[] = $builds[$i + 2];
-                break;
-            }
+        if ($this->history->hasLocalProject()) {
+            $_project = $this->history->getLocalProject();
+            $project->setBackupServices($_project->getServices()->toArray());
         }
 
-        /**
-         * @var Build $deploy
-         * @var Build $package
-         * @var Build $build
-         */
-        list($deploy, $package, $build) = $return;
+        // Remote Stage
+        $project->setRemoteStage($this->ci->buildRemoteStage());
 
-        $isSuccessful = self::BUILD_STATUS_SUCCESS === $deploy->getStatus()
-            && self::BUILD_STATUS_SUCCESS === $package->getStatus()
-            && self::BUILD_STATUS_SUCCESS === $build->getStatus();
+        // download artifact & compute metrics
+        $services = $this->artifactManager->download($project->getRemoteStage());
+        $project->setServices($services);
 
-        $hasWarning = self::BUILD_STATUS_SUCCESS === $deploy->getStatus()
-            && (self::BUILD_STATUS_FAILED === $package->getStatus()
-                || self::BUILD_STATUS_FAILED === $build->getStatus());
+        // statify history
+        $this->history->statify($project);
 
-        $status = $isSuccessful ? self::BUILD_SUCCESS : ($hasWarning ? self::BUILD_WARNING : self::BUILD_ERROR);
-        $this->lifxLight->state(['json' => PayloadFactory::getStateFromBuild($status)]);
+        $this->lifxLight->state(
+            [
+                'json' => PayloadFactory::getStateFromBuild($project->getRemoteStage()->getStatus()),
+            ]
+        );
 
-        return (new Stage())
-            ->setBuildJob($build)
-            ->setPackageJob($package)
-            ->setDeployJob($deploy)
-            ->setStatus($status);
+        return $project;
     }
 }

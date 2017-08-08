@@ -17,9 +17,12 @@ parameters:
 
     # A secret key that's used to generate certain security-related tokens
     secret: ThisTokenIsNotSoSecretChangeIt
-    lifx_selector: d073d5229a05
-    ci_mezzo: 11
 
-    redmine_project_id: mezzo
+    admin_skin: 'skin-blue-light'
+
+    lifx_selector: 'd073d5229a05'
+
+    redmine_project_id: 'mezzo'
     gitlab_project_id: 11
     artifact_path: '%kernel.project_dir%/var/artifacts'
+    history_path: '%kernel.project_dir%/var/history'

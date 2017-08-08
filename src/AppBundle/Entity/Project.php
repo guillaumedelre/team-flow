@@ -8,36 +8,60 @@ use Doctrine\Common\Collections\Collection;
 class Project
 {
     /**
-     * @var int
+     * @var int|null
      */
-    private $id;
+    private $gitlabId;
 
     /**
      * @var string
      */
-    private $name;
+    private $redmineId;
 
     /**
-     * @var Stage
+     * @var Stage|null
      */
-    private $stage;
+    private $localStage;
 
     /**
-     * @return int
+     * @var Stage|null
      */
-    public function getId(): int
+    private $remoteStage;
+
+    /**
+     * @var Service[]|ArrayCollection|Collection
+     */
+    private $backupServices;
+
+    /**
+     * @var Service[]|ArrayCollection|Collection
+     */
+    private $services;
+
+    /**
+     * Project constructor.
+     */
+    public function __construct()
     {
-        return $this->id;
+        $this->services = new ArrayCollection();
+        $this->backupServices = new ArrayCollection();
     }
 
     /**
-     * @param int $id
+     * @return int|null
+     */
+    public function getGitlabId()
+    {
+        return $this->gitlabId;
+    }
+
+    /**
+     * @param int|null $gitlabId
      *
      * @return Project
      */
-    public function setId(int $id)
+    public function setGitlabId($gitlabId)
     {
-        $this->id = $id;
+        $this->gitlabId = $gitlabId;
 
         return $this;
     }
@@ -45,41 +69,105 @@ class Project
     /**
      * @return string
      */
-    public function getName(): string
+    public function getRedmineId(): string
     {
-        return $this->name;
+        return $this->redmineId;
     }
 
     /**
-     * @param string $name
+     * @param string $redmineId
      *
      * @return Project
      */
-    public function setName(string $name)
+    public function setRedmineId(string $redmineId)
     {
-        $this->name = $name;
+        $this->redmineId = $redmineId;
+
+        return $this;
+    }
+    /**
+     * @return Stage|null
+     */
+    public function getLocalStage()
+    {
+        return $this->localStage;
+    }
+
+    /**
+     * @param Stage|null $localStage
+     *
+     * @return Project
+     */
+    public function setLocalStage($localStage)
+    {
+        $this->localStage = $localStage;
 
         return $this;
     }
 
     /**
-     * @return Stage
+     * @return Stage|null
      */
-    public function getStage(): Stage
+    public function getRemoteStage()
     {
-        return $this->stage;
+        return $this->remoteStage;
     }
 
     /**
-     * @param Stage $stage
+     * @param Stage|null $remoteStage
      *
      * @return Project
      */
-    public function setStage(Stage $stage)
+    public function setRemoteStage($remoteStage)
     {
-        $this->stage = $stage;
+        $this->remoteStage = $remoteStage;
 
         return $this;
     }
 
+    /**
+     * @return Service[]|ArrayCollection|Collection
+     */
+    public function getBackupServices()
+    {
+        return $this->backupServices;
+    }
+
+    /**
+     * @param Service[]
+     *
+     * @return Project
+     */
+    public function setBackupServices(array $backupServices)
+    {
+        $this->backupServices = new ArrayCollection();
+        foreach ($backupServices as $service) {
+            $this->backupServices->add($service);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Service[]|ArrayCollection|Collection
+     */
+    public function getServices()
+    {
+        return $this->services;
+    }
+
+    /**
+     * @param Service[] $services
+     *
+     * @return Project
+     */
+    public function setServices(array $services)
+    {
+        $this->services = new ArrayCollection();
+        foreach ($services as $service) {
+            $this->services->add($service);
+        }
+
+        return $this;
+    }
 }

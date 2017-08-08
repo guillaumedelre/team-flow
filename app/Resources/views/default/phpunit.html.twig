@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block page_title %}Mezzo QA{% endblock %}
+
+{% block page_subtitle %}Metrics / Phpunit{% endblock %}
+
+{% block page_content %}
+    <div class="row">
+        {% for service in project.services %}
+            <div class="col-md-6 col-sm-12 col-xs-12">
+                <div class="box box-default">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">{{ service.name|upper }} - PHPUNIT</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="chart">
+                            <canvas id="chart-{{ project.redmineId }}-phpunit-{{ service.name }}"
+                                    style="height: 125px; width: 394px;" width="394" height="125">
+                            </canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+{% block javascripts_inline %}
+    {{ parent() }}
+    <script type="text/javascript">
+        loadCharts({{ json|raw }}, '{{ project.redmineId }}', {{ apps|json_encode()|raw }});
+    </script>
+{% endblock %}

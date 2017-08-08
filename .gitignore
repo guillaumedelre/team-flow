@@ -6,6 +6,9 @@
 !/var/artifacts
 /var/artifacts/*
 !var/artifacts/.gitkeep
+!/var/history
+/var/history/*
+!var/history/.gitkeep
 !/var/cache
 /var/cache/*
 !var/cache/.gitkeep
