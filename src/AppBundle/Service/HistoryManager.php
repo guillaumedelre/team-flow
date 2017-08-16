@@ -8,6 +8,7 @@
 
 namespace AppBundle\Service;
 
+use AppBundle\Entity\Artifact\BehatClover;
 use AppBundle\Entity\Artifact\PhpunitClover;
 use AppBundle\Entity\Project;
 use AppBundle\Entity\Service;
@@ -148,10 +149,12 @@ class HistoryManager
     {
         $return = [];
         foreach ($services as $service) {
-            $return[] = (new Service())
+            dump($service);
+            $_service = (new Service())
                 ->setCreatedAt($createdAt)
-                ->setName($service['name'])
-                ->setPhpunitClover(
+                ->setName($service['name']);
+            if (isset($service['phpunitClover'])) {
+                $_service->setPhpunitClover(
                     (new PhpunitClover())
                         ->setFiles($service['phpunitClover']['files'])
                         ->setLoc($service['phpunitClover']['loc'])
@@ -166,6 +169,29 @@ class HistoryManager
                         ->setElements($service['phpunitClover']['elements'])
                         ->setCoveredelements($service['phpunitClover']['coveredelements'])
                 );
+            } else {
+                $_service->setPhpunitClover(new PhpunitClover());
+            }
+
+            if (isset($service['behatClover'])) {
+                $_service->setBehatClover(
+                    (new BehatClover())
+                        ->setDuration($service['behatClover']['duration'])
+                        ->setBytes($service['behatClover']['bytes'])
+                        ->setStepTotal($service['behatClover']['stepTotal'])
+                        ->setStepPassed($service['behatClover']['stepPassed'])
+                        ->setStepSkipped($service['behatClover']['stepSkipped'])
+                        ->setStepFailed($service['behatClover']['stepFailed'])
+                        ->setScenarioTotal($service['behatClover']['scenarioTotal'])
+                        ->setScenarioPassed($service['behatClover']['scenarioPassed'])
+                        ->setScenarioSkipped($service['behatClover']['scenarioSkipped'])
+                        ->setScenarioFailed($service['behatClover']['scenarioFailed'])
+                );
+            } else {
+                $_service->setBehatClover(new BehatClover());
+            }
+
+            $return[] = $_service;
         }
 
         return $return;

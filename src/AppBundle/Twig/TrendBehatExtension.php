@@ -2,19 +2,19 @@
 
 namespace AppBundle\Twig;
 
-use AppBundle\Entity\Artifact\PhpunitClover;
+use AppBundle\Entity\Artifact\BehatClover;
 use AppBundle\Entity\Project;
 use AppBundle\Entity\Service;
 use Doctrine\Common\Collections\ArrayCollection;
 
-class TrendExtension extends \Twig_Extension
+class TrendBehatExtension extends \Twig_Extension
 {
     public function getFunctions()
     {
         return [
-            new \Twig_SimpleFunction('trendArrow', [$this, 'trendArrow']),
-            new \Twig_SimpleFunction('trendBackground', [$this, 'trendBackground']),
-            new \Twig_SimpleFunction('phpunitPercent', [$this, 'phpunitPercent']),
+            new \Twig_SimpleFunction('behatThumb', [$this, 'trendArrow']),
+            new \Twig_SimpleFunction('behatBackground', [$this, 'trendBackground']),
+            new \Twig_SimpleFunction('behatPercent', [$this, 'behatPercent']),
         ];
     }
 
@@ -26,7 +26,7 @@ class TrendExtension extends \Twig_Extension
      */
     public function trendArrow(Service $service, Project $project): string
     {
-        $avg = $this->phpunitPercent($service, $project->getServices());
+        $avg = $this->behatPercent($service, $project->getServices());
 
         $return = 'fa-thumbs-down';
 
@@ -43,38 +43,31 @@ class TrendExtension extends \Twig_Extension
      *
      * @return float|int
      */
-    public function phpunitPercent(Service $service, ArrayCollection $services)
+    public function behatPercent(Service $service, ArrayCollection $services)
     {
-        /** @var PhpunitClover $phpunit */
-        $phpunit = null;
+        /** @var BehatClover $behat */
+        $behat = null;
 
+        /** @var Service $_service */
         foreach ($services as $_service) {
             if ($service->getName() === $_service->getName()) {
-                $phpunit = $_service->getPhpunitClover();
+                $behat = $_service->getBehatClover();
                 break;
             }
         }
 
         $avg = 0;
         $divider = 0;
-        if ($phpunit->getMethods() > 0) {
-            $avg += $phpunit->getCoveredmethods() * 100 / $phpunit->getMethods();
+        if ($behat->getScenarioTotal() > 0) {
+            $avg += $behat->getScenarioPassed() * 100 / $behat->getScenarioTotal();
             $divider++;
         }
-        if ($phpunit->getConditionals() > 0) {
-            $avg += $phpunit->getCoveredconditionals() * 100 / $phpunit->getConditionals();
-            $divider++;
-        }
-        if ($phpunit->getStatements() > 0) {
-            $avg += $phpunit->getCoveredstatements() * 100 / $phpunit->getStatements();
-            $divider++;
-        }
-        if ($phpunit->getElements() > 0) {
-            $avg += $phpunit->getCoveredelements() * 100 / $phpunit->getElements();
+        if ($behat->getStepTotal() > 0) {
+            $avg += $behat->getStepPassed() * 100 / $behat->getStepTotal();
             $divider++;
         }
 
-        return $avg / $divider;
+        return (0 === $divider) ? 0 : $avg / $divider;
     }
 
     /**
@@ -85,7 +78,7 @@ class TrendExtension extends \Twig_Extension
      */
     public function trendBackground(Service $service, Project $project)
     {
-        $avg = $this->phpunitPercent($service, $project->getServices());
+        $avg = $this->behatPercent($service, $project->getServices());
 
         $return = 'bg-aqua';
 

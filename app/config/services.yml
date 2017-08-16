@@ -47,8 +47,13 @@ services:
             - '%gitlab_project_id%'
 
     # TWIG
-    app.twig.extension.trend:
-        class: 'AppBundle\Twig\TrendExtension'
+    app.twig.extension.trend_phpunit:
+        class: 'AppBundle\Twig\TrendPhpunitExtension'
+        tags:
+            - { name: 'twig.extension' }
+
+    app.twig.extension.trend_behat:
+        class: 'AppBundle\Twig\TrendBehatExtension'
         tags:
             - { name: 'twig.extension' }
 
@@ -93,9 +98,17 @@ services:
             - '@filesystem'
             - '@serializer'
             - '@app.api.gitlab.mezzo'
+            - '@app.service.artifact.phpunit_clover.parser'
+            - '@app.service.artifact.behat_clover.parser'
 
-    app.service.artifact.clover_parser:
+    app.service.artifact.phpunit_clover.parser:
         class: 'AppBundle\Service\Artifact\PhpunitCloverParser'
+        arguments:
+            - '%artifact_path%'
+
+
+    app.service.artifact.behat_clover.parser:
+        class: 'AppBundle\Service\Artifact\BehatCloverParser'
         arguments:
             - '%artifact_path%'
 

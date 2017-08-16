@@ -2,6 +2,7 @@
 
 namespace AppBundle\Entity;
 
+use AppBundle\Entity\Artifact\BehatClover;
 use AppBundle\Entity\Artifact\PhpunitClover;
 
 class Service
@@ -20,6 +21,11 @@ class Service
      * @var PhpunitClover
      */
     private $phpunitClover;
+
+    /**
+     * @var BehatClover
+     */
+    private $behatClover;
 
     /**
      * Service constructor.
@@ -45,6 +51,26 @@ class Service
     public function setPhpunitClover(PhpunitClover $phpunitClover)
     {
         $this->phpunitClover = $phpunitClover;
+
+        return $this;
+    }
+
+    /**
+     * @return BehatClover
+     */
+    public function getBehatClover(): BehatClover
+    {
+        return $this->behatClover;
+    }
+
+    /**
+     * @param BehatClover $behatClover
+     *
+     * @return Service
+     */
+    public function setBehatClover(BehatClover $behatClover)
+    {
+        $this->behatClover = $behatClover;
 
         return $this;
     }

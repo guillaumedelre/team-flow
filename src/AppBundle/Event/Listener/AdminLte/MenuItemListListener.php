@@ -60,6 +60,15 @@ class MenuItemListListener
                 'fa fa-bar-chart'
             )
         );
+        $metrics->addChild(
+            new MenuItemModel(
+                "metrics_behat",
+                'Behat',
+                'metrics',
+                ['metricName' => 'behat'],
+                'fa fa-bar-chart'
+            )
+        );
 
         // A child with default circle icon
 //        $blog->addChild(new MenuItemModel('ChildTwoItemId', 'ChildTwoDisplayName', 'child_2_route'));

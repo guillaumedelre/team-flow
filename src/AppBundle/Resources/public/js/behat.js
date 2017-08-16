@@ -1,11 +1,9 @@
 var color = Chart.helpers.color;
 
-var phpunitCoverage = function (phpunitClover) {
+var behatCoverage = function (behatClover) {
     return [
-        Math.round(phpunitClover.coveredmethods * 100 / phpunitClover.methods),
-        Math.round(phpunitClover.coveredconditionals * 100 / phpunitClover.conditionals),
-        Math.round(phpunitClover.coveredstatements * 100 / phpunitClover.statements),
-        Math.round(phpunitClover.coveredelements * 100 / phpunitClover.elements),
+        Math.round(behatClover.scenarioPassed * 100 / behatClover.scenarioTotal),
+        Math.round(behatClover.stepPassed * 100 / behatClover.stepTotal),
     ];
 };
 
@@ -20,7 +18,7 @@ var buildDataset = function (data, serviceName) {
                     backgroundColor: color(_color).alpha(0.5).rgbString(),
                     borderColor: color(_color),
                     borderWidth: 1,
-                    data: phpunitCoverage(service.phpunitClover)
+                    data: behatCoverage(service.behatClover)
                 });
             }
         });
@@ -29,12 +27,28 @@ var buildDataset = function (data, serviceName) {
     return result;
 };
 
+var getMin = function (datasets) {
+    var lowest = 100;
+    var isNaN = NaN;
+    $.each(datasets, function (i, dataset) {
+        $.each(dataset.data, function (i, value) {
+            if (value < lowest && !isNaN(value)) {
+                lowest = value;
+                isNaN = false;
+            }
+        });
+    });
+
+    return !isNaN ? lowest : 0;
+};
+
 var buildMetricChart = function (elementName, datasets) {
+    var yAxesMinValue = getMin(datasets);
     var ctx = document.getElementById(elementName).getContext('2d');
     new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Methods', 'Conditionals', 'Statements', 'Elements'],
+            labels: ['Scenari', 'Steps'],
             datasets: datasets,
         },
         options: {
@@ -42,7 +56,7 @@ var buildMetricChart = function (elementName, datasets) {
                 yAxes: [{
                     ticks: {
                         max: 100,
-                        min: 0
+                        min: yAxesMinValue
                     }
                 }]
             }
@@ -50,11 +64,11 @@ var buildMetricChart = function (elementName, datasets) {
     });
 };
 
-var loadCharts = function (data, redmineId, apps) {
+var loadBehatCharts = function (data, redmineId, apps) {
     var datasets = [];
     $.each(apps, function (i, serviceName) {
         datasets[serviceName] = buildDataset(data, serviceName);
-        buildMetricChart('chart-' + redmineId + '-phpunit-' + serviceName, datasets[serviceName])
+        buildMetricChart('chart-' + redmineId + '-behat-' + serviceName, datasets[serviceName])
     });
 };
 

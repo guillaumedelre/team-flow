@@ -11,6 +11,7 @@ namespace AppBundle\Service;
 
 use AppBundle\Entity\Service;
 use AppBundle\Entity\Stage;
+use AppBundle\Service\Artifact\BehatCloverParser;
 use AppBundle\Service\Artifact\PhpunitCloverParser;
 use AppBundle\Service\Gitlab\Mezzo;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -52,6 +53,11 @@ class ArtifactManager
     private $phpunitCloverParser;
 
     /**
+     * @var BehatCloverParser
+     */
+    private $behatCloverParser;
+
+    /**
      * ArtifactManager constructor.
      *
      * @param string $artifactPath
@@ -59,13 +65,15 @@ class ArtifactManager
      * @param SerializerInterface $serializer
      * @param Mezzo $gitlabMezzo
      * @param PhpunitCloverParser $phpunitCloverParser
+     * @param BehatCloverParser $behatCloverParser
      */
     public function __construct(
         string $artifactPath,
         Filesystem $filesystem,
         SerializerInterface $serializer,
         Mezzo $gitlabMezzo,
-        PhpunitCloverParser $phpunitCloverParser
+        PhpunitCloverParser $phpunitCloverParser,
+        BehatCloverParser $behatCloverParser
     ) {
         $this->artifactPath = $artifactPath;
         $this->filesystem = $filesystem;
@@ -73,6 +81,7 @@ class ArtifactManager
         $this->serializer = $serializer;
         $this->gitlabMezzo = $gitlabMezzo;
         $this->phpunitCloverParser = $phpunitCloverParser;
+        $this->behatCloverParser = $behatCloverParser;
     }
 
     /**
@@ -109,7 +118,9 @@ class ArtifactManager
             $services[] = (new Service())
                     ->setName($serviceName)
                     ->setCreatedAt(new \DateTime())
-                    ->setPhpunitClover($this->phpunitCloverParser->parse($serviceName));
+                    ->setPhpunitClover($this->phpunitCloverParser->parse($serviceName))
+                    ->setBehatClover($this->behatCloverParser->parse($serviceName))
+            ;
         }
 
         return $services;

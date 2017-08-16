@@ -16,8 +16,8 @@
 
                     <div class="box-body">
                         <a href="{{ url('metrics', {"metricName": 'phpunit'}) }}">
-                            <div class="info-box {{ trendBackground(service, project) }}">
-                                <span class="info-box-icon"><i class="fa {{ trendArrow(service, project) }}"></i></span>
+                            <div class="info-box {{ phpunitBackground(service, project) }}">
+                                <span class="info-box-icon"><i class="fa {{ phpunitThumb(service, project) }}"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">PHPUNIT</span>
                                     <span class="info-box-number">
@@ -26,6 +26,22 @@
                                     <div class="progress">
                                         <div class="progress-bar"
                                              style="width: {{ phpunitPercent(service, project.services)|round }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+
+                        <a href="{{ url('metrics', {"metricName": 'behat'}) }}">
+                            <div class="info-box {{ behatBackground(service, project) }}">
+                                <span class="info-box-icon"><i class="fa {{ behatThumb(service, project) }}"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">BEHAT</span>
+                                    <span class="info-box-number">
+                                        {{ behatPercent(service, project.services)|round(2) }}%
+                                    </span>
+                                    <div class="progress">
+                                        <div class="progress-bar"
+                                             style="width: {{ behatPercent(service, project.services)|round }}%"></div>
                                     </div>
                                 </div>
                             </div>
