@@ -17,6 +17,7 @@ class AppKernel extends Kernel
 
             new Csa\Bundle\GuzzleBundle\CsaGuzzleBundle(),
             new Avanzu\AdminThemeBundle\AvanzuAdminThemeBundle(),
+            new \Gdelre\RedmineApiBundle\GdelreRedmineApiBundle(),
 
             new AppBundle\AppBundle(),
         ];

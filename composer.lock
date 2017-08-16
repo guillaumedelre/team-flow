@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "42212a41cfbad20d9e764bcc376b383f",
+    "content-hash": "960c706ff23d0bf7813c81ced9ea026d",
     "packages": [
         {
             "name": "avanzu/admin-theme-bundle",
@@ -990,6 +990,50 @@
                 "rest"
             ],
             "time": "2016-10-17T18:31:11+00:00"
+        },
+        {
+            "name": "guillaumedelre/redmine-api-bundle",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/guillaumedelre/redmine-api-bundle.git",
+                "reference": "af8c31d839dc444d03647c6ec25eb4b17fb5a111"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/guillaumedelre/redmine-api-bundle/zipball/af8c31d839dc444d03647c6ec25eb4b17fb5a111",
+                "reference": "af8c31d839dc444d03647c6ec25eb4b17fb5a111",
+                "shasum": ""
+            },
+            "require": {
+                "csa/guzzle-bundle": "^2.2",
+                "doctrine/doctrine-cache-bundle": "^1.3",
+                "symfony/dependency-injection": "^3.3",
+                "symfony/framework-bundle": "^3.3",
+                "symfony/http-kernel": "^3.3",
+                "symfony/monolog-bundle": "^3.1"
+            },
+            "require-dev": {
+                "symfony/console": "^3.3",
+                "symfony/yaml": "^3.3"
+            },
+            "type": "bundle",
+            "autoload": {
+                "psr-4": {
+                    "Gdelre\\RedmineApiBundle\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Gdelre\\RedmineApiBundle\\Tests\\": "tests/"
+                }
+            },
+            "description": "symfony bundle handling redmine api.",
+            "support": {
+                "source": "https://github.com/guillaumedelre/redmine-api-bundle/tree/master",
+                "issues": "https://github.com/guillaumedelre/redmine-api-bundle/issues"
+            },
+            "time": "2017-07-13 14:51:07"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -3007,7 +3051,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "guillaumedelre/redmine-api-bundle": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

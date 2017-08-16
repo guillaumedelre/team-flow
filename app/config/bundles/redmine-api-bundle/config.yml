@@ -1,0 +1,7 @@
+gdelre_redmine_api:
+    base_uri: 'https://projects.francemm.com'
+    timeout: 2.0
+    credential:
+        username: 'gdelre'
+        password: 'root'
+        api_key: '3577bead3d8467eccc3da5e2525a084ab5c1ea41'
